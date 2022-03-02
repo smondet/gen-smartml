@@ -8,6 +8,6 @@
   pp
   unix
   smartML
-  )
+  num tools michel utils stdio)
  (preprocess
   (pps ppx_base)))
