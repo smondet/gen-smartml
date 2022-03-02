@@ -1,0 +1,7 @@
+(library
+ (name utils_pure)
+ (public_name utils_pure)
+ (modules binary_tree bigint control list option set map data string io ternary)
+ (flags (:standard -w -9@27-30@32-40@8 -safe-string))
+ (preprocess (pps ppx_deriving.eq ppx_deriving.ord ppx_deriving.show ppx_deriving.map ppx_deriving.fold))
+ (libraries yojson))
