@@ -1,0 +1,13 @@
+(executable
+ (name main)
+ (libraries
+  base
+  cmdliner
+  sexplib
+  fmt
+  pp
+  unix
+  smartML
+  )
+ (preprocess
+  (pps ppx_base)))
