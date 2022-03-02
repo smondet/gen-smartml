@@ -1,0 +1,7 @@
+(library
+ (name utils)
+ (public_name utils)
+ (modules binary_tree bs58 misc bigint control list option set map data string io cmd_unix cmd_js cmd ternary)
+ (flags (:standard -w -9@27-30@32-40@8 -safe-string))
+ (preprocess (pps ppx_deriving.eq ppx_deriving.ord ppx_deriving.show ppx_deriving.map ppx_deriving.fold))
+ (libraries base58 digestif.ocaml yojson fmt hex base num unix js_of_ocaml utils_pure))
