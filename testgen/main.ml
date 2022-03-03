@@ -3,7 +3,9 @@ open! Stdio
 
 let line_no = []
 
-let config = SmartML.Config.default
+let config =
+  (* SmartML.Config.{ default with simplify = false; simplify_via_michel = false } *)
+  SmartML.Config.default
 
 let type_check = Tools.Checker.check_contract config
 
@@ -139,7 +141,7 @@ let try_contract c =
           with Shell.Command_failed { cmd; out; err } ->
             Fmt.str "Failed (cf. %s & %s)" out err
         in
-        Fmt.epr "    - Origination with %s: %s\n" mich origination;
+        Fmt.epr "    - Origination with %s:\n      %s\n" mich origination;
         ())
   with e -> Fmt.epr "    - Exception: %a\n%!" Exn.pp e
 
@@ -154,6 +156,7 @@ let contractize ?(inits = [ "Unit" ]) ?storage eps =
   in
   object
     method contract = build_contract ?storage ~entry_points_layout eps
+    (* ~flags:[ Config.(Bool_Flag (Simplify, false)) ] *)
 
     method inits = inits
   end
@@ -164,26 +167,35 @@ let default_receive =
   build_entry_point ~name:"default" ~tparameter:Type.unit
     Command.(
       seq ~line_no
-        [ comment ~line_no "This is the default entry point, it does nothing" ])
+        [ (* comment ~line_no "This is the default entry point, it does nothing" *) ])
 
 let easydelegation using =
   let open SmartML in
   let open Basics in
-  build_entry_point ~name:"easydelegation"
-    ~tparameter:
-      Type.(
-        record_default_layout SmartML.Config.Comb [ ("delegate", key_hash) ])
+  let tparameter =
+    Type.(
+      record_default_layout SmartML.Config.Comb
+        [ ("delegate", key_hash); ("some_other", nat ()) ])
+  in
+  build_entry_point ~name:"easy_delegation" ~tparameter
     Command.(
       seq ~line_no
         [
-          comment ~line_no "This just allows anyone to delegate";
+          (* comment ~line_no "This just allows anyone to delegate";
+             comment ~line_no "more text";
+             comment ~line_no "more text";
+             comment ~line_no "more text"; *)
+          (* define_local ~line_no "param"
+             Expr.(type_annotation ~line_no ~t:tparameter (params ~line_no))
+             true; *)
           Library.set_delegate ~line_no
             (match using with
             | `None -> Expr.none ~line_no (*  WORKS! *)
             | `Param ->
                 Expr.(
                   some ~line_no
-                    (attr ~line_no ~name:"delegate" (params ~line_no))));
+                    (attr ~line_no ~name:"delegate"
+                       (type_annotation ~line_no ~t:tparameter (params ~line_no)))));
         ])
 
 let send_back =
@@ -193,7 +205,7 @@ let send_back =
     Command.(
       seq ~line_no
         [
-          comment ~line_no "This is the default entry point, it does nothing";
+          (* comment ~line_no "This is the default entry point, it does nothing"; *)
           Library.send ~line_no (Expr.sender ~line_no) (Expr.amount ~line_no);
         ])
 
@@ -204,7 +216,7 @@ let checkadmin =
     Command.(
       seq ~line_no
         [
-          comment ~line_no "This is the default entry point, it does nothing";
+          (* comment ~line_no "This is the default entry point, it does nothing"; *)
           Command.verify ~line_no
             Expr.(
               bin_op ~line_no ~op:BEq (sender ~line_no)
